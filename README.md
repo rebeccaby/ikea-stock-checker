@@ -1,10 +1,11 @@
 # IKEA Stock Checker
 
 ### Use
-Execution:
+*Execution*:  
 `python3 ikea_stock_checker.py <product_code> <store_id1> <store_id2> ...`
 
-Returns (example of one store):
+*Returns* (example of one store):  
+Creates a text file in same directory as script, which is updated every execution.  
 ```
 [
     {
@@ -28,13 +29,12 @@ Returns (example of one store):
             'forecast_date': '2021-04-10',
             'forecast_stock': 7
         }
-    }
+    },
+    ...
 ]
 ```
 
-Creates a text file in same directory as script, which is updated every execution.
-
-Dependancies:
+*Dependancies*:
 requests==2.25.1
 beautifulsoup4==4.9.3
 
