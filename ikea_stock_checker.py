@@ -1,5 +1,4 @@
 import requests as req
-#from xml.etree.ElementTree import fromstring, ElementTree as ET
 from bs4 import BeautifulSoup as BS
 import sys
 
@@ -17,7 +16,7 @@ def check_valid_args_syntax(args):
             execution_help()
 
 def get_select_stores(soup, store_id_list):
-    store_list = []
+    stores = []
     for store_tag in soup.find_all('localstore'):
         for store_id in store_id_list:
             if store_tag.attrs['bucode'] == store_id:
@@ -27,47 +26,65 @@ def get_select_stores(soup, store_id_list):
         for store_id in store_id_list:
             print(f"Store {store_id} was not found.")
 
+    return stores
+
 def get_all_stores(soup):
+    stores = []
+
     for store_tag in soup.find_all('localstore'):
         store = {}
-        store['_id'] = store_tag.attrs['bucode']
 
-    for stock_tag in soup.find_all('stock'):
-        print()
-        print(list(stock_tag))
+        store['store_id'] = int(store_tag.attrs['bucode'])
+        store['available_stock'] = int(store_tag.find('availablestock').contents[0])
+        store['in_stock_probability'] = store_tag.find('instockprobabilitycode').contents[0]
+
+        restock_date = store_tag.find('restockdate')
+        if restock_date is not None:
+            store['restock_date'] = restock_date.contents[0]
+        else:
+            store['restock_date'] = None
+
+        four_forecasts = {}
+        forecast = store_tag.find('forecasts').contents
+        i = 1
+        for fc in forecast:
+            date = fc.find('validdate').contents[0]
+            stock = fc.find('availablestock').contents[0]
+            four_forecasts['forecast_date'] = date
+            four_forecasts['forecast_stock'] = int(stock)
+            key = ['forecast', str(i)]
+            key_name = '_'.join(key)
+            store[key_name] = four_forecasts
+            i = i + 1
+
+        stores.append(store)
+
+    return stores
 
 def main():
     BASE_URL = "https://www.ikea.com/us/en/iows/catalog/availability/"
 
     args = sys.argv[1:]
     check_valid_args_syntax(args)
-
     product_code = args[0]
+    store_id_list = args[1:]
 
     r = req.get(BASE_URL + product_code)
     soup = BS(r.text, 'lxml')
 
-    store_id_list = args[1:]
     if not store_id_list:
-        get_all_stores(soup)
+        stores = get_all_stores(soup)
     else:
-        get_select_stores(soup, store_id_list)
+        stores = get_select_stores(soup, store_id_list)
+    
+    try:
+        f = open("stores.txt", "w")
+    except FileNotFoundError: 
+        f = open("stores.txt", "x")
+    f.write(str(stores))
+    f.close()
 
     r.close()
 
 if __name__ == '__main__':
     main()
-
-'''
-tree = ET(fromstring(r.text))
-root = tree.getroot()
-
-header = root[0]
-action_response = root[1]
-availability = root[2]
-
-stores = availability.findall('localStore')
-for store in stores:
-    for elem in store.iter():
-        print(elem)
-'''
