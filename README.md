@@ -1,6 +1,6 @@
 # IKEA Stock Checker
 
-### Use
+## Use
 **Execution**:  
 `python3 ikea_stock_checker.py <product_code> <store_id1> <store_id2> ...`
 
@@ -9,7 +9,7 @@ Creates a text file in same directory as script, which is updated every executio
 ```
 [
     {
-        'store_id': 168,
+        '_store_id': 168,
         'available_stock': 11,
         'in_stock_probability': 'HIGH',
         'restock_date': None,
@@ -35,14 +35,14 @@ Creates a text file in same directory as script, which is updated every executio
 ```
 
 **Dependancies**:  
-requests==2.25.1
+requests==2.25.1  
 beautifulsoup4==4.9.3
   
-### Fields used from XML response
-restockdate
-availablestock
-instockprobabilitycode
-forecasts
+## Fields used from XML response
+restockdate  
+availablestock  
+instockprobabilitycode  
+forecasts  
 
 <!--
 ### Store format in XML response
